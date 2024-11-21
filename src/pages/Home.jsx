@@ -1,9 +1,24 @@
 import React, { useEffect, useState } from "react";
 import mqtt from "mqtt";
-import "./home.css";
-import "./home2.css";
+
+import ColorPicker from "../component/ColorPicker";
+import LightTimer from "../component/LightTimer";
+import LedAnimation from "../component/LedAnimation/LedAnimation";
+import { getFullTime } from "../utils/getTime";
+import LedToggle from "../component/LedToggle/LegToggle";
+import LedDelay from "../component/LedDelay";
+import Card from "../component/Card";
+import { MdSignalWifiConnectedNoInternet0 } from "react-icons/md";
+import { ImConnection } from "react-icons/im";
+import { MdFlashlightOff } from "react-icons/md";
+import { IoMdFlashlight } from "react-icons/io";
+import { FaWalking } from "react-icons/fa";
+import { MdPersonOff } from "react-icons/md";
+import { LuMoon } from "react-icons/lu";
+import { FiSun } from "react-icons/fi";
 
 function Home() {
+  const [startTime, setStartTime] = useState("");
   const [lightStatus, setLightStatus] = useState("OFF");
   const [motionStatus, setMotionStatus] = useState("No motion");
   const [lightLevel, setLightLevel] = useState(0);
@@ -20,6 +35,13 @@ function Home() {
     client.on("connect", () => {
       console.log("Connected to MQTT Broker");
       setMqttClient(client);
+      console.log("MQTT");
+      if (startTime === "") {
+        const data = JSON.stringify({ message: "GET_START_TIME" });
+        client.publish("home/time/start/get", data);
+      }
+
+      client.subscribe("home/time/start");
       client.subscribe("home/light/status");
       client.subscribe("home/motion");
       client.subscribe("home/lightSensor");
@@ -27,13 +49,16 @@ function Home() {
 
     client.on("message", (topic, message) => {
       if (topic === "home/light/status") {
-        console.log("Light Status::", message.toString());
-        setLightStatus(message.toString());
+        const result = JSON.parse(message.toString());
+        console.log("RESULT::", result);
+        setLightStatus(result.status);
       } else if (topic === "home/motion") {
         setMotionStatus(message.toString());
       } else if (topic === "home/lightSensor") {
-        console.log("LIGHT VALUE:::", message.toString());
         setLightLevel(message.toString());
+      } else if (topic === "home/time/start") {
+        console.log("______", message.toString());
+        setStartTime(new Date().getTime() - parseFloat(message.toString()));
       }
     });
     client.on("error", (err) => {
@@ -49,53 +74,44 @@ function Home() {
     };
   }, []);
 
-  const handleLightToggle = (action) => {
-    if (mqttClient) {
-      setStatus(status === "ON" ? "OFF" : "ON");
-      mqttClient.publish("home/light/control", action);
-    }
-  };
-
   return (
-    <div className=" ">
-      <h1 className="!text-center !w-screen mt-4 mb-2">Đèn LED tự động</h1>
-      <p>Light Status: {lightStatus === "OFF" ? "Tắt" : "Bật"}</p>
-      <p>Motion Status: {motionStatus}</p>
-      <p>
-        Light Level:{" "}
-        {lightLevel === "0" ? "Cường độ sáng mạnh" : "Cường độ sáng yếu"}
-      </p>
-
-      <div className="devide" />
-      <div className="flex-center">
-        <p>Điều khiển đèn thủ công: </p>
-        {/* <button onClick={() => handleLightToggle("ON")} className="btn">
-          Bật
-        </button>
-        <button onClick={() => handleLightToggle("OFF")} className="btn">
-          Tắt
-        </button> */}
-        <label className="switch" htmlFor="switch">
-          <input
-            onClick={() => handleLightToggle(status === "ON" ? "OFF" : "ON")}
-            id="switch"
-            type="checkbox"
-            checked={status === "ON" ? true : false}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
-
-      <div id="lampadario">
-        <input
-          type="radio"
-          value={lightStatus === "ON" ? "on" : "off"}
-          checked={lightStatus === "ON" ? true : false}
+    <div className="w-full">
+      <h1 className="!text-center !w-screen mt-4 mb-2 text-[20px] max-sm:text-[14px] uppercase">
+        Đèn LED tự động
+      </h1>
+      <div className="w-full flex items-center justify-center whitespace-break-spaces flex-wrap">
+        <Card
+          Icon={startTime ? ImConnection : MdSignalWifiConnectedNoInternet0}
+          content={startTime ? `${getFullTime(startTime)}` : "no connect"}
+          title=" Thời gian hoạt động gần nhất"
         />
-        <input type="radio" name="switch" value="off" disabled />
-        <label htmlFor="switch"></label>
-        <div id="filo"></div>
+        <Card
+          Icon={motionStatus === "No motion" ? MdPersonOff : FaWalking}
+          content={
+            motionStatus === "No motion"
+              ? "Không có chuyển động"
+              : "Phát hiện chuyển động"
+          }
+          title="Mức độ chuyển động"
+        />
+        <Card
+          Icon={lightStatus === "OFF" ? MdFlashlightOff : IoMdFlashlight}
+          content={lightStatus === "OFF" ? "Tắt" : "Bật"}
+          title="Trạng thái đèn"
+        />
+        <Card
+          Icon={lightLevel === "0" ? FiSun : LuMoon}
+          content={lightLevel === "0" ? "Mức sáng cao" : "Mức sáng thấp"}
+          title="Mức độ sáng"
+        />
       </div>
+
+      <LedToggle client={mqttClient} setStatus={setStatus} status={status} />
+
+      {/* <LedAnimation lightStatus={lightStatus} /> */}
+      <ColorPicker client={mqttClient} />
+      <LightTimer client={mqttClient} startTime={startTime} />
+      <LedDelay client={mqttClient} />
     </div>
   );
 }

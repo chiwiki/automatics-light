@@ -1,38 +1,9 @@
-.flex-center {
-  position: relative !important;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 8px;
-  width: fit-content;
-  padding-right: 40px !important;
-}
-.btn {
-  font-size: 16px;
-  font-weight: 400;
-  padding: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  background-color: black;
-  cursor: pointer;
-}
-.devide {
-  height: 1px;
-  width: 300px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  background-color: white;
-  opacity: 0.3;
-}
-
 .switch {
   position: absolute !important;
   top: 50% !important;
-  left: 100% !important;
+  right: 16px;
   width: 60px;
-  height: 34px;
+  height: 30px;
   transform: translateY(-50%);
 }
 
@@ -60,21 +31,21 @@
   height: 26px;
   width: 26px;
   left: 4px;
-  bottom: 4px;
+  bottom: 2px;
   background-color: white;
   -webkit-transition: 0.4s;
   transition: 0.4s;
 }
 
-input:checked + .slider {
+input.toggle:checked + .toggle.slider {
   background-color: #2196f3;
 }
 
-input:focus + .slider {
+input.toggle:focus + .toggle.slider {
   box-shadow: 0 0 1px #2196f3;
 }
 
-input:checked + .slider:before {
+input.toggle:checked + .toggle.slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
