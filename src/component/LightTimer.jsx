@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
+
 const LightTimer = ({ client, startTime }) => {
   const [turnOnTime, setTurnOnTime] = useState("");
   const [turnOffTime, setTurnOffTime] = useState("");
@@ -51,11 +52,14 @@ const LightTimer = ({ client, startTime }) => {
     console.log(message);
 
     client.publish("home/time/control", message);
+    toast.success("Đã hẹn giờ");
   };
 
   return (
     <div className="mx-auto w-[500px] max-sm:w-full  px-4 py-2 rounded-[4px] bg-white h-fit mb-[10px]">
-      <h2 className="text-black text-center">Thiết lập hẹn giờ cho đèn LED</h2>
+      <h2 className="text-black text-center mb-2">
+        Thiết lập hẹn giờ cho đèn LED
+      </h2>
       <div className="w-full flex items-center justify-center">
         <div className="w-full flex items-center justify-between">
           <div className="flex flex-col w-[200px] items-center gap-1">

@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import { Toaster } from "react-hot-toast";
 function App() {
   return (
-    <div className="App w-screen h-screen">
+    <div className="w-screen h-screen">
       <Home />
       <div>
         <Toaster />

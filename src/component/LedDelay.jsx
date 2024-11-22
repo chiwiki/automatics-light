@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-
+import { toast } from "react-hot-toast";
 const LedDelay = ({ client }) => {
   const [option, setOption] = useState(5);
   const setDelayTime = () => {
-    console.log("Option::", option);
     const data = JSON.stringify({ lifetime: option });
     client.publish("home/light/delay/control", data);
+    toast.success(`Đã thay đổi thời gian sáng thành ${option} giây`);
   };
   return (
     <div className="w-[500px] max-sm:w-full h-fit px-4 py-2 rounded-[4px] shadow-md bg-white flex items-center justify-between gap-4 mx-auto mb-[40px]">
